@@ -1,0 +1,6 @@
+[submodule "src/ngx-chess-board"]
+	path = src/ngx-chess-board
+	url = git@github.com:danielfoord/ngx-chess-board.git
+[submodule "src/stockfish.js"]
+	path = src/stockfish.js
+	url = https://github.com/danielfoord/stockfish.js
