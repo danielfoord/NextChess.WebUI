@@ -11,14 +11,16 @@ import { Subject, takeUntil } from 'rxjs';
 })
 export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  @ViewChild('board', { static: false }) cmpt: NgxChessBoardComponent;
-  @ViewChild('darkModeToggle', { static: false }) darkModeToggle: MatSlideToggle;
+  @ViewChild('board', { static: false }) boardRef: NgxChessBoardComponent;
+  @ViewChild('darkModeToggle', { static: false }) darkModeToggleRef: MatSlideToggle;
 
   private $destroyed = new Subject<void>();
 
   private engine: Worker;
   
   private moveList: string[] = [];
+
+  private usersTurn: boolean = true;
 
   constructor(@Inject(WINDOW) readonly windowRef: Window) { }
 
@@ -33,39 +35,46 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     this.engine.onmessage = ({ data }) => {
       if (data) {
         console.log(`Worker: ${data}`);
+
+        const isBotMove = /bestmove \w*/.test(data);
+        if (isBotMove) {
+          this.handleBotMoveFromEngine(data);
+        }
       }
     };
 
     this.engine.postMessage('isready');
-    this.engine.postMessage('uci');
-    this.engine.postMessage('setoption name Skill Level value 20');
     this.engine.postMessage('ucinewgame');
+    this.engine.postMessage('setoption name Skill Level value 1');
+    this.engine.postMessage('uci');
     this.engine.postMessage('position startpos');
     this.engine.postMessage('eval');
     this.engine.postMessage('go');
   }
 
   ngAfterViewInit(): void {
-    console.debug(this.cmpt);
+    // console.debug(this.boardRef);
 
-    this.cmpt.moveChange.pipe(
+    this.boardRef.moveChange.pipe(
       takeUntil(this.$destroyed)
     ).subscribe((evt: MoveChange) => {
-      console.debug(evt);
+      // console.debug(evt);
       this.moveList.push((evt as any).move);
+      this.usersTurn = !this.usersTurn;
       this.engine.postMessage(`position startpos moves ${this.moveList.reduce((prev, curr) => `${prev} ${curr}`, '')}`);
+      this.engine.postMessage('eval');
       this.engine.postMessage('go');
     });
 
-    this.cmpt.checkmate.pipe(
+    this.boardRef.checkmate.pipe(
       takeUntil(this.$destroyed)
     ).subscribe(() => console.debug('CHECKMATE'));
 
-    this.cmpt.stalemate.pipe(
+    this.boardRef.stalemate.pipe(
       takeUntil(this.$destroyed)
     ).subscribe(() => console.debug('STALEMATE'));
 
-    this.darkModeToggle.change.pipe(
+    this.darkModeToggleRef.change.pipe(
       takeUntil(this.$destroyed)
     ).subscribe(() => document.querySelector('body')?.classList.toggle('dark-theme'));
   }
@@ -82,6 +91,13 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       ? windowRef.innerHeight
       : windowRef.innerWidth;
     this.size = size - 120;
+  }
+
+  private handleBotMoveFromEngine(engineResponse: string) {
+    const move = engineResponse.split(' ')[1];
+    if (!this.usersTurn) {
+      this.boardRef.move(move);
+    }
   }
 
   title = 'next_chess';
