@@ -1,10 +1,19 @@
-<mat-toolbar color="primary" class="mat-elevation-z4">
+<mat-toolbar color="primary"
+             class="mat-elevation-z4">
   <span>Next Chess</span>
 </mat-toolbar>
 
 <div class="container">
-  <ngx-chess-board class="mat-elevation-z3"></ngx-chess-board>
+  <ngx-chess-board #board 
+                   class="mat-elevation-z5"
+                   lightTileColor="#efefef"
+                   darkTileColor="#2196f3"
+                   destinationPointColor="#abdaff"
+                   sourcePointColor="#abdaff"
+                   [showActivePiece]="false"
+                   [pieceIcons]="pieceIcons"
+                   [size]="size"
+                   [drawDisabled]="true"></ngx-chess-board>
 </div>
-
 
 <router-outlet></router-outlet>

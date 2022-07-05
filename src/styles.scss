@@ -43,6 +43,33 @@ body {
   width: 100%;
 }
 
-.single-piece {
-  margin-top: 25px;
+// .single-piece {
+//   margin-top: 25px;
+// }
+
+// TODO: Fix this
+.current-selection {
+  background-color: #b1ffae !important;
+}
+
+.yCoord {
+  position: absolute;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: pointer;
+  top: 0.2em;
+  right: 0.2em;
+  font-family: 'Lucida Console', Courier, monospace;
+  box-sizing: border-box;
+}
+
+.xCoord {
+  position: absolute;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: pointer;
+  left: 0.2em;
+  bottom: 0.2em;
+  font-family: 'Lucida Console', Courier, monospace;
+  box-sizing: border-box;
 }
