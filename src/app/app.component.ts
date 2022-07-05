@@ -1,4 +1,5 @@
 import { AfterViewInit, Component, HostListener, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { WINDOW } from '@ng-web-apis/common';
 import { MoveChange, NgxChessBoardComponent, PieceIconInput } from 'ngx-chess-board';
 import { Subject, takeUntil } from 'rxjs';
@@ -11,6 +12,7 @@ import { Subject, takeUntil } from 'rxjs';
 export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild('board', { static: false }) cmpt: NgxChessBoardComponent;
+  @ViewChild('darkModeToggle', { static: false }) darkModeToggle: MatSlideToggle;
 
   private $destroyed = new Subject<void>();
 
@@ -62,6 +64,10 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     this.cmpt.stalemate.pipe(
       takeUntil(this.$destroyed)
     ).subscribe(() => console.debug('STALEMATE'));
+
+    this.darkModeToggle.change.pipe(
+      takeUntil(this.$destroyed)
+    ).subscribe(() => document.querySelector('body')?.classList.toggle('dark-theme'));
   }
 
   ngOnDestroy(): void {

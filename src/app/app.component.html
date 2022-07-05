@@ -1,10 +1,16 @@
 <mat-toolbar color="primary"
-             class="mat-elevation-z4">
-  <span>Next Chess</span>
+             class="mat-elevation-z4"
+             style="display: flex; justify-content: space-between">
+  <div>Next Chess</div>
+  <div>
+    <mat-slide-toggle #darkModeToggle>
+      <small>Dark mode</small>
+    </mat-slide-toggle>
+  </div>
 </mat-toolbar>
 
 <div class="container">
-  <ngx-chess-board #board 
+  <ngx-chess-board #board
                    class="mat-elevation-z5"
                    lightTileColor="#efefef"
                    darkTileColor="#2196f3"
