@@ -1,3 +1,0 @@
-[submodule "src/stockfish.js"]
-	path = src/stockfish.js
-	url = https://github.com/danielfoord/stockfish.js
