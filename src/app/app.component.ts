@@ -3,6 +3,7 @@ import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { WINDOW } from '@ng-web-apis/common';
 import { MoveChange, NgxChessBoardComponent, PieceIconInput } from 'ngx-chess-board';
 import { Subject, takeUntil } from 'rxjs';
+import { PieceIconsService } from './piece-icons.service';
 
 @Component({
   selector: 'app-root',
@@ -22,7 +23,10 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private usersTurn: boolean = true;
 
-  constructor(@Inject(WINDOW) readonly windowRef: Window) { }
+  constructor(
+    @Inject(WINDOW) readonly windowRef: Window,
+    private pieceIconsService: PieceIconsService
+  ) { }
 
   ngOnInit(): void {
     const size = this.windowRef.innerWidth > this.windowRef.innerHeight
@@ -44,8 +48,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     };
 
     this.engine.postMessage('isready');
-    this.engine.postMessage('ucinewgame');
     this.engine.postMessage('setoption name Skill Level value 1');
+    this.engine.postMessage('ucinewgame');
+
     this.engine.postMessage('uci');
     this.engine.postMessage('position startpos');
     this.engine.postMessage('eval');
@@ -100,21 +105,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  title = 'next_chess';
   size = 600;
 
-  pieceIcons: PieceIconInput = {
-    blackBishopUrl: 'assets/img/bb.png',
-    blackKingUrl: 'assets/img/bk.png',
-    blackKnightUrl: 'assets/img/bn.png',
-    blackPawnUrl: 'assets/img/bp.png',
-    blackQueenUrl: 'assets/img/bq.png',
-    blackRookUrl: 'assets/img/br.png',
-    whiteBishopUrl: 'assets/img/wb.png',
-    whiteKingUrl: 'assets/img/wk.png',
-    whiteKnightUrl: 'assets/img/wn.png',
-    whitePawnUrl: 'assets/img/wp.png',
-    whiteQueenUrl: 'assets/img/wq.png',
-    whiteRookUrl: 'assets/img/wr.png',
-  };
+  pieceIcons: PieceIconInput = this.pieceIconsService.getIcons();
 }
