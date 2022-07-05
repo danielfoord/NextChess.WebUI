@@ -29,7 +29,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     this.engine = new Worker('assets/stockfish/stockfish.js');
 
     this.engine.onmessage = ({ data }) => {
-      console.log(`Worker: ${data}`);
+      if (data) {
+        console.log(`Worker: ${data}`);
+      }
     };
 
     this.engine.postMessage('isready');
@@ -55,11 +57,11 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.cmpt.checkmate.pipe(
       takeUntil(this.$destroyed)
-    ).subscribe();
+    ).subscribe(() => console.debug('CHECKMATE'));
 
     this.cmpt.stalemate.pipe(
       takeUntil(this.$destroyed)
-    ).subscribe();
+    ).subscribe(() => console.debug('STALEMATE'));
   }
 
   ngOnDestroy(): void {
