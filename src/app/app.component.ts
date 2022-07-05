@@ -40,9 +40,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       if (data) {
         console.log(`Worker: ${data}`);
 
-        const isBotMove = /bestmove \w*/.test(data);
-        if (isBotMove) {
-          this.handleBotMoveFromEngine(data);
+        const receivedBestMove = /bestmove \w*/.test(data);
+        if (receivedBestMove) {
+          this.handleMoveFromEngine(data);
         }
       }
     };
@@ -99,7 +99,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     this.size = size - 120;
   }
 
-  private handleBotMoveFromEngine(engineResponse: string) {
+  private handleMoveFromEngine(engineResponse: string) {
     const move = engineResponse.split(' ')[1];
     if (!this.usersTurn) {
       this.boardRef.move(move);
