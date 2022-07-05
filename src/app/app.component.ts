@@ -78,7 +78,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     this.boardRef.stalemate.pipe(
       takeUntil(this.$destroyed)
     ).subscribe(() => console.debug('STALEMATE'));
-
+    
+    // TODO: Move to theme service
     this.darkModeToggleRef.change.pipe(
       takeUntil(this.$destroyed)
     ).subscribe(() => document.querySelector('body')?.classList.toggle('dark-theme'));
