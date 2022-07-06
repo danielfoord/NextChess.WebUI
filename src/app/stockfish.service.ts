@@ -15,7 +15,6 @@ export class StockfishService {
   initialize() {
     var wasmSupported = typeof WebAssembly === 'object' && WebAssembly.validate(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
     this.engine = new Worker(wasmSupported ? 'assets/stockfish/stockfish.wasm.js' : 'assets/stockfish/stockfish.js');
-    this.engine = new Worker('assets/stockfish/stockfish.js');
 
     this.engine.onmessage = ({ data }) => {
       if (data) {

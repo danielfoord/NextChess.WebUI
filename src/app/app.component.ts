@@ -22,11 +22,18 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private usersTurn: boolean = true;
 
+  size = 600;
+
+  pieceIcons: PieceIconInput = this.pieceIconsService.getIcons();
+
+  // TODO: Move to theme service
   isDarkMode: boolean = false;
 
+  // TODO: Move to theme service
   ligtModeDarkSquareColor = '#2979ff';
   darkModeDarkSqaureColor = '#9c27b0';
 
+  // TODO: Move to theme service
   ligtModeLightSquareColor = '#fefefe';
   darkModeLightSqaureColor = '#c3c3c3';
 
@@ -39,6 +46,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
 
+    // TODO: Move to theme service
     if (this.storage.getItem('darkMode') === 'true') {
       this.isDarkMode = true;
       document.querySelector('body')?.classList.toggle('dark-theme');
@@ -113,8 +121,4 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       this.boardRef.move(move);
     }
   }
-
-  size = 600;
-
-  pieceIcons: PieceIconInput = this.pieceIconsService.getIcons();
 }
