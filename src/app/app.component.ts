@@ -19,8 +19,10 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private $destroyed = new Subject<void>();
 
+  // TODO: This should move to game state
   private moveList: string[] = [];
 
+  // TODO: This should move to game state
   private usersTurn: boolean = true;
 
   size = 600;
@@ -63,6 +65,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       takeUntil(this.$destroyed)
     ).subscribe((evt: MoveChange) => {
       // console.debug(evt);
+      // TODO: This should move to game state
       this.moveList.push((evt as any).move);
       this.usersTurn = !this.usersTurn;
       this.stockfishService.go(this.moveList);
