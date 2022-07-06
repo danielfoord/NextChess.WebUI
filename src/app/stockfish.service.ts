@@ -7,12 +7,16 @@ export class StockfishService {
 
   private engine: Worker;
 
+  onLoadStart: EventEmitter<void> = new EventEmitter();
   onReady: EventEmitter<void> = new EventEmitter();
+  onUciCheckOk: EventEmitter<void> = new EventEmitter();
   onMove: EventEmitter<string> = new EventEmitter();
 
   constructor() { }
 
   initialize() {
+    this.onLoadStart.emit();
+
     var wasmSupported = typeof WebAssembly === 'object' && WebAssembly.validate(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
     this.engine = new Worker(wasmSupported ? 'assets/stockfish/stockfish.wasm.js' : 'assets/stockfish/stockfish.js');
 
@@ -21,10 +25,13 @@ export class StockfishService {
         console.debug(`Stockfish: ${data}`);
 
         const isReady = /readyok/.test(data);
+        const isUciOk = /uciok/.test(data);
         const receivedBestMove = /bestmove \w*/.test(data);
 
         if (isReady) {
-          this.onReady.emit(data);
+          this.onReady.emit();
+        } else if (isUciOk) {
+          this.onUciCheckOk.emit();
         } else if (receivedBestMove) {
           this.onMove.emit(data);
         }
@@ -33,6 +40,14 @@ export class StockfishService {
 
     this.engine.postMessage('isready');
     this.engine.postMessage('uci');
+    // this.engine.postMessage('isready');
+    // this.engine.postMessage('setoption name Skill Level value 1');
+    // this.engine.postMessage('ucinewgame');
+
+    // this.engine.postMessage('uci');
+    // this.engine.postMessage('position startpos');
+    // this.engine.postMessage('eval');
+    // this.engine.postMessage('go');
   }
 
   go(movesList: string[]) {

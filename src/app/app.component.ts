@@ -39,9 +39,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     @Inject(WINDOW) readonly windowRef: Window,
+    @Inject(LOCAL_STORAGE) private readonly storage: Storage,
     private readonly pieceIconsService: PieceIconsService,
-    private readonly stockfishService: StockfishService,
-    @Inject(LOCAL_STORAGE) private readonly storage: Storage
+    private readonly stockfishService: StockfishService
   ) { }
 
   ngOnInit(): void {
@@ -57,20 +57,19 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       : this.windowRef.innerWidth;
     this.size = size - 120;
 
-    this.stockfishService.initialize();
-
     this.stockfishService.onMove.pipe(
       takeUntil(this.$destroyed)
     ).subscribe((move) => this.handleMoveFromEngine(move));
 
-    // this.engine.postMessage('isready');
-    // this.engine.postMessage('setoption name Skill Level value 1');
-    // this.engine.postMessage('ucinewgame');
+    this.stockfishService.onReady.pipe(
+      takeUntil(this.$destroyed)
+    ).subscribe(() => console.info('ENGINE READY'));
 
-    // this.engine.postMessage('uci');
-    // this.engine.postMessage('position startpos');
-    // this.engine.postMessage('eval');
-    // this.engine.postMessage('go');
+    this.stockfishService.onUciCheckOk.pipe(
+      takeUntil(this.$destroyed)
+    ).subscribe(() => console.info('UCI CHECK OK'));
+
+    this.stockfishService.initialize();
   }
 
   ngAfterViewInit(): void {
