@@ -1,9 +1,10 @@
 import { AfterViewInit, Component, HostListener, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
-import { WINDOW } from '@ng-web-apis/common';
+import { LOCAL_STORAGE, WINDOW } from '@ng-web-apis/common';
 import { MoveChange, NgxChessBoardComponent, PieceIconInput } from 'ngx-chess-board';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, tap } from 'rxjs';
 import { PieceIconsService } from './piece-icons.service';
+import { StockfishService } from './stockfish.service';
 
 @Component({
   selector: 'app-root',
@@ -17,44 +18,58 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private $destroyed = new Subject<void>();
 
-  private engine: Worker;
-  
   private moveList: string[] = [];
 
   private usersTurn: boolean = true;
 
+  size = 600;
+
+  pieceIcons: PieceIconInput = this.pieceIconsService.getIcons();
+
+  // TODO: Move to theme service
+  isDarkMode: boolean = false;
+
+  // TODO: Move to theme service
+  ligtModeDarkSquareColor = '#2979ff';
+  darkModeDarkSqaureColor = '#9c27b0';
+
+  // TODO: Move to theme service
+  ligtModeLightSquareColor = '#fefefe';
+  darkModeLightSqaureColor = '#c3c3c3';
+
   constructor(
     @Inject(WINDOW) readonly windowRef: Window,
-    private pieceIconsService: PieceIconsService
+    @Inject(LOCAL_STORAGE) private readonly storage: Storage,
+    private readonly pieceIconsService: PieceIconsService,
+    private readonly stockfishService: StockfishService
   ) { }
 
   ngOnInit(): void {
+
+    // TODO: Move to theme service
+    if (this.storage.getItem('darkMode') === 'true') {
+      this.isDarkMode = true;
+      document.querySelector('body')?.classList.toggle('dark-theme');
+    }
+
     const size = this.windowRef.innerWidth > this.windowRef.innerHeight
       ? this.windowRef.innerHeight
       : this.windowRef.innerWidth;
     this.size = size - 120;
 
-    this.engine = new Worker('assets/stockfish/stockfish.js');
+    this.stockfishService.onMove.pipe(
+      takeUntil(this.$destroyed)
+    ).subscribe((move) => this.handleMoveFromEngine(move));
 
-    this.engine.onmessage = ({ data }) => {
-      if (data) {
-        console.log(`Worker: ${data}`);
+    this.stockfishService.onReady.pipe(
+      takeUntil(this.$destroyed)
+    ).subscribe(() => console.info('ENGINE READY'));
 
-        const receivedBestMove = /bestmove \w*/.test(data);
-        if (receivedBestMove) {
-          this.handleMoveFromEngine(data);
-        }
-      }
-    };
+    this.stockfishService.onUciCheckOk.pipe(
+      takeUntil(this.$destroyed)
+    ).subscribe(() => console.info('UCI CHECK OK'));
 
-    this.engine.postMessage('isready');
-    this.engine.postMessage('setoption name Skill Level value 1');
-    this.engine.postMessage('ucinewgame');
-
-    this.engine.postMessage('uci');
-    this.engine.postMessage('position startpos');
-    this.engine.postMessage('eval');
-    this.engine.postMessage('go');
+    this.stockfishService.initialize();
   }
 
   ngAfterViewInit(): void {
@@ -66,9 +81,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       // console.debug(evt);
       this.moveList.push((evt as any).move);
       this.usersTurn = !this.usersTurn;
-      this.engine.postMessage(`position startpos moves ${this.moveList.reduce((prev, curr) => `${prev} ${curr}`, '')}`);
-      this.engine.postMessage('eval');
-      this.engine.postMessage('go');
+      this.stockfishService.go(this.moveList);
     });
 
     this.boardRef.checkmate.pipe(
@@ -78,10 +91,12 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     this.boardRef.stalemate.pipe(
       takeUntil(this.$destroyed)
     ).subscribe(() => console.debug('STALEMATE'));
-    
+
     // TODO: Move to theme service
     this.darkModeToggleRef.change.pipe(
-      takeUntil(this.$destroyed)
+      takeUntil(this.$destroyed),
+      tap(evt => this.storage.setItem('darkMode', `${evt.checked}`)),
+      tap(evt => this.isDarkMode = !this.isDarkMode)
     ).subscribe(() => document.querySelector('body')?.classList.toggle('dark-theme'));
   }
 
@@ -105,8 +120,4 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       this.boardRef.move(move);
     }
   }
-
-  size = 600;
-
-  pieceIcons: PieceIconInput = this.pieceIconsService.getIcons();
 }

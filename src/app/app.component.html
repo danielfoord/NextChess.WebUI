@@ -3,7 +3,7 @@
              style="display: flex; justify-content: space-between">
   <div>Next Chess</div>
   <div>
-    <mat-slide-toggle #darkModeToggle>
+    <mat-slide-toggle #darkModeToggle [checked]="isDarkMode">
       <small>Dark mode</small>
     </mat-slide-toggle>
   </div>
@@ -12,8 +12,8 @@
 <div class="container">
   <ngx-chess-board #board
                    class="mat-elevation-z5"
-                   lightTileColor="#efefef"
-                   darkTileColor="#2196f3"
+                   [lightTileColor]="isDarkMode ? darkModeLightSqaureColor : ligtModeLightSquareColor"
+                   [darkTileColor]="isDarkMode ? darkModeDarkSqaureColor : ligtModeDarkSquareColor"
                    destinationPointColor="#abdaff"
                    sourcePointColor="#abdaff"
                    [showActivePiece]="false"
