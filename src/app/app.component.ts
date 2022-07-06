@@ -1,10 +1,11 @@
 import { AfterViewInit, Component, HostListener, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
-import { LOCAL_STORAGE, WINDOW } from '@ng-web-apis/common';
+import { WINDOW } from '@ng-web-apis/common';
 import { MoveChange, NgxChessBoardComponent, PieceIconInput } from 'ngx-chess-board';
-import { Subject, takeUntil, tap } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { PieceIconsService } from './piece-icons.service';
 import { StockfishService } from './stockfish.service';
+import { ThemeService } from './theme.service';
 
 @Component({
   selector: 'app-root',
@@ -26,32 +27,14 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
   pieceIcons: PieceIconInput = this.pieceIconsService.getIcons();
 
-  // TODO: Move to theme service
-  isDarkMode: boolean = false;
-
-  // TODO: Move to theme service
-  ligtModeDarkSquareColor = '#2979ff';
-  darkModeDarkSqaureColor = '#9c27b0';
-
-  // TODO: Move to theme service
-  ligtModeLightSquareColor = '#fefefe';
-  darkModeLightSqaureColor = '#c3c3c3';
-
   constructor(
     @Inject(WINDOW) readonly windowRef: Window,
-    @Inject(LOCAL_STORAGE) private readonly storage: Storage,
+    readonly themeService: ThemeService,
     private readonly pieceIconsService: PieceIconsService,
     private readonly stockfishService: StockfishService
   ) { }
 
   ngOnInit(): void {
-
-    // TODO: Move to theme service
-    if (this.storage.getItem('darkMode') === 'true') {
-      this.isDarkMode = true;
-      document.querySelector('body')?.classList.toggle('dark-theme');
-    }
-
     const size = this.windowRef.innerWidth > this.windowRef.innerHeight
       ? this.windowRef.innerHeight
       : this.windowRef.innerWidth;
@@ -69,6 +52,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       takeUntil(this.$destroyed)
     ).subscribe(() => console.info('UCI CHECK OK'));
 
+    this.themeService.initialize();
     this.stockfishService.initialize();
   }
 
@@ -92,12 +76,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       takeUntil(this.$destroyed)
     ).subscribe(() => console.debug('STALEMATE'));
 
-    // TODO: Move to theme service
     this.darkModeToggleRef.change.pipe(
-      takeUntil(this.$destroyed),
-      tap(evt => this.storage.setItem('darkMode', `${evt.checked}`)),
-      tap(evt => this.isDarkMode = !this.isDarkMode)
-    ).subscribe(() => document.querySelector('body')?.classList.toggle('dark-theme'));
+      takeUntil(this.$destroyed)
+    ).subscribe(() => this.themeService.toggle());
   }
 
   ngOnDestroy(): void {
