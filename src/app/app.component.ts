@@ -24,6 +24,12 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
   isDarkMode: boolean = false;
 
+  ligtModeDarkSquareColor = '#2979ff';
+  darkModeDarkSqaureColor = '#9c27b0';
+
+  ligtModeLightSquareColor = '#fefefe';
+  darkModeLightSqaureColor = '#c3c3c3';
+
   constructor(
     @Inject(WINDOW) readonly windowRef: Window,
     private readonly pieceIconsService: PieceIconsService,
@@ -82,7 +88,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     // TODO: Move to theme service
     this.darkModeToggleRef.change.pipe(
       takeUntil(this.$destroyed),
-      tap(evt => this.storage.setItem('darkMode', `${evt.checked}`))
+      tap(evt => this.storage.setItem('darkMode', `${evt.checked}`)),
+      tap(evt => this.isDarkMode = !this.isDarkMode)
     ).subscribe(() => document.querySelector('body')?.classList.toggle('dark-theme'));
   }
 
