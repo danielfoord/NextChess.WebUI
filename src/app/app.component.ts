@@ -4,6 +4,7 @@ import { WINDOW } from '@ng-web-apis/common';
 import { MoveChange, NgxChessBoardComponent, PieceIconInput } from 'ngx-chess-board';
 import { Subject, takeUntil } from 'rxjs';
 import { PieceIconsService } from './piece-icons.service';
+import { StockfishService } from './stockfish.service';
 
 @Component({
   selector: 'app-root',
@@ -16,8 +17,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('darkModeToggle', { static: false }) darkModeToggleRef: MatSlideToggle;
 
   private $destroyed = new Subject<void>();
-
-  private engine: Worker;
   
   private moveList: string[] = [];
 
@@ -25,7 +24,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     @Inject(WINDOW) readonly windowRef: Window,
-    private pieceIconsService: PieceIconsService
+    private pieceIconsService: PieceIconsService,
+    private stockfishService: StockfishService
   ) { }
 
   ngOnInit(): void {
@@ -34,27 +34,20 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       : this.windowRef.innerWidth;
     this.size = size - 120;
 
-    this.engine = new Worker('assets/stockfish/stockfish.js');
+    this.stockfishService.initialize();
 
-    this.engine.onmessage = ({ data }) => {
-      if (data) {
-        console.log(`Worker: ${data}`);
+    this.stockfishService.onMove.pipe(
+      takeUntil(this.$destroyed)
+    ).subscribe((move) => this.handleMoveFromEngine(move));
 
-        const receivedBestMove = /bestmove \w*/.test(data);
-        if (receivedBestMove) {
-          this.handleMoveFromEngine(data);
-        }
-      }
-    };
+    // this.engine.postMessage('isready');
+    // this.engine.postMessage('setoption name Skill Level value 1');
+    // this.engine.postMessage('ucinewgame');
 
-    this.engine.postMessage('isready');
-    this.engine.postMessage('setoption name Skill Level value 1');
-    this.engine.postMessage('ucinewgame');
-
-    this.engine.postMessage('uci');
-    this.engine.postMessage('position startpos');
-    this.engine.postMessage('eval');
-    this.engine.postMessage('go');
+    // this.engine.postMessage('uci');
+    // this.engine.postMessage('position startpos');
+    // this.engine.postMessage('eval');
+    // this.engine.postMessage('go');
   }
 
   ngAfterViewInit(): void {
@@ -66,9 +59,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       // console.debug(evt);
       this.moveList.push((evt as any).move);
       this.usersTurn = !this.usersTurn;
-      this.engine.postMessage(`position startpos moves ${this.moveList.reduce((prev, curr) => `${prev} ${curr}`, '')}`);
-      this.engine.postMessage('eval');
-      this.engine.postMessage('go');
+      this.stockfishService.go(this.moveList);
     });
 
     this.boardRef.checkmate.pipe(
