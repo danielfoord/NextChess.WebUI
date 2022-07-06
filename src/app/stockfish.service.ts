@@ -7,7 +7,6 @@ export class StockfishService {
 
   private engine: Worker;
 
-  onLoadStart: EventEmitter<void> = new EventEmitter();
   onReady: EventEmitter<void> = new EventEmitter();
   onUciCheckOk: EventEmitter<void> = new EventEmitter();
   onMove: EventEmitter<string> = new EventEmitter();
@@ -15,8 +14,6 @@ export class StockfishService {
   constructor() { }
 
   initialize() {
-    this.onLoadStart.emit();
-
     var wasmSupported = typeof WebAssembly === 'object' && WebAssembly.validate(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
     this.engine = new Worker(wasmSupported ? 'assets/stockfish/stockfish.wasm.js' : 'assets/stockfish/stockfish.js');
 
