@@ -1,8 +1,8 @@
 import { AfterViewInit, Component, HostListener, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
-import { WINDOW } from '@ng-web-apis/common';
+import { LOCAL_STORAGE, WINDOW } from '@ng-web-apis/common';
 import { MoveChange, NgxChessBoardComponent, PieceIconInput } from 'ngx-chess-board';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, tap } from 'rxjs';
 import { PieceIconsService } from './piece-icons.service';
 import { StockfishService } from './stockfish.service';
 
@@ -17,18 +17,27 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('darkModeToggle', { static: false }) darkModeToggleRef: MatSlideToggle;
 
   private $destroyed = new Subject<void>();
-  
+
   private moveList: string[] = [];
 
   private usersTurn: boolean = true;
 
+  isDarkMode: boolean = false;
+
   constructor(
     @Inject(WINDOW) readonly windowRef: Window,
-    private pieceIconsService: PieceIconsService,
-    private stockfishService: StockfishService
+    private readonly pieceIconsService: PieceIconsService,
+    private readonly stockfishService: StockfishService,
+    @Inject(LOCAL_STORAGE) private readonly storage: Storage
   ) { }
 
   ngOnInit(): void {
+
+    if (this.storage.getItem('darkMode') === 'true') {
+      this.isDarkMode = true;
+      document.querySelector('body')?.classList.toggle('dark-theme');
+    }
+
     const size = this.windowRef.innerWidth > this.windowRef.innerHeight
       ? this.windowRef.innerHeight
       : this.windowRef.innerWidth;
@@ -69,10 +78,11 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     this.boardRef.stalemate.pipe(
       takeUntil(this.$destroyed)
     ).subscribe(() => console.debug('STALEMATE'));
-    
+
     // TODO: Move to theme service
     this.darkModeToggleRef.change.pipe(
-      takeUntil(this.$destroyed)
+      takeUntil(this.$destroyed),
+      tap(evt => this.storage.setItem('darkMode', `${evt.checked}`))
     ).subscribe(() => document.querySelector('body')?.classList.toggle('dark-theme'));
   }
 

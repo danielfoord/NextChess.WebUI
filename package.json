@@ -21,6 +21,7 @@
     "@angular/platform-browser-dynamic": "^14.0.0",
     "@angular/router": "^14.0.0",
     "@ng-web-apis/common": "^2.0.0",
+    "@ng-web-apis/storage": "^1.0.0",
     "ngx-chess-board": "^2.2.1",
     "rxjs": "~7.5.0",
     "stockfish.js": "^10.0.2",
