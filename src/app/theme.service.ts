@@ -19,11 +19,11 @@ export class ThemeService {
     @Inject(LOCAL_STORAGE) private readonly storage: Storage,
     @Inject(DOCUMENT) private readonly document: Document) { }
 
-  get lightSquareColor() {
+  get boardLightSquareColor() {
     return this.isDarkMode ? this.darkModeLightSqaureColor : this.ligtModeLightSquareColor;
   }
 
-  get darkSquareColor() {
+  get boardDarkSquareColor() {
     return this.isDarkMode ? this.darkModeDarkSqaureColor : this.ligtModeDarkSquareColor;
   }
 

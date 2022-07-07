@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, HostListener, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { WINDOW } from '@ng-web-apis/common';
 import { MoveChange, NgxChessBoardComponent, PieceIconInput } from 'ngx-chess-board';
@@ -16,6 +16,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild('board', { static: false }) boardRef: NgxChessBoardComponent;
   @ViewChild('darkModeToggle', { static: false }) darkModeToggleRef: MatSlideToggle;
+  @ViewChild('boardContainer', { static: true }) boardContainerRef: ElementRef<HTMLElement>;
 
   private $destroyed = new Subject<void>();
 
@@ -27,6 +28,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
   size = 600;
 
+  boardPadding = 30;
+
   pieceIcons: PieceIconInput = this.pieceIconsService.getIcons();
 
   constructor(
@@ -37,10 +40,10 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    const size = this.windowRef.innerWidth > this.windowRef.innerHeight
-      ? this.windowRef.innerHeight
-      : this.windowRef.innerWidth;
-    this.size = size - 120;
+    const size = (this.windowRef.innerWidth - 300) > (this.windowRef.innerHeight - 64)
+      ? this.windowRef.innerHeight - 64
+      : this.windowRef.innerWidth - 300
+    this.size = size - (this.boardPadding * 2);
 
     this.stockfishService.onMove.pipe(
       takeUntil(this.$destroyed)
@@ -59,12 +62,10 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    // console.debug(this.boardRef);
 
     this.boardRef.moveChange.pipe(
       takeUntil(this.$destroyed)
     ).subscribe((evt: MoveChange) => {
-      // console.debug(evt);
       // TODO: This should move to game state
       this.moveList.push((evt as any).move);
       this.usersTurn = !this.usersTurn;
@@ -90,12 +91,15 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   @HostListener('window:resize', ['$event'])
-  onResize(event: UIEvent) {
-    const windowRef = event.target as Window;
-    const size = windowRef.innerWidth > windowRef.innerHeight
-      ? windowRef.innerHeight
-      : windowRef.innerWidth;
-    this.size = size - 120;
+  onResize(_: UIEvent) {
+    const size = this.boardContainerRef.nativeElement.clientWidth > this.boardContainerRef.nativeElement.clientHeight
+      ? this.boardContainerRef.nativeElement.clientHeight
+      : this.boardContainerRef.nativeElement.clientWidth;
+    this.size = size - (this.boardPadding * 2);
+  }
+
+  startNewGame() {
+    console.info('START NEW GAME');
   }
 
   private handleMoveFromEngine(engineResponse: string) {

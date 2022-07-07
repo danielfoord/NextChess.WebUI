@@ -3,23 +3,51 @@
              style="display: flex; justify-content: space-between">
   <div>Next Chess</div>
   <div>
-    <mat-slide-toggle #darkModeToggle [checked]="themeService.isDarkMode">
+    <mat-slide-toggle #darkModeToggle
+                      [checked]="themeService.isDarkMode">
       <small>Dark mode</small>
     </mat-slide-toggle>
   </div>
 </mat-toolbar>
 
-<div class="container">
-  <ngx-chess-board #board
-                   class="mat-elevation-z5"
-                   [lightTileColor]="themeService.lightSquareColor"
-                   [darkTileColor]="themeService.darkSquareColor"
-                   destinationPointColor="#abdaff"
-                   sourcePointColor="#abdaff"
-                   [showActivePiece]="false"
-                   [pieceIcons]="pieceIcons"
-                   [size]="size"
-                   [drawDisabled]="true"></ngx-chess-board>
-</div>
+
+
+<mat-drawer-container>
+
+  <div class="example-sidenav-content">
+
+    <div #boardContainer
+         class="board-container">
+      <ngx-chess-board #board
+                       class="mat-elevation-z5"
+                       [lightTileColor]="themeService.boardLightSquareColor"
+                       [darkTileColor]="themeService.boardDarkSquareColor"
+                       destinationPointColor="#abdaff"
+                       sourcePointColor="#abdaff"
+                       [showActivePiece]="false"
+                       [pieceIcons]="pieceIcons"
+                       [size]="size"
+                       [drawDisabled]="true"></ngx-chess-board>
+    </div>
+  </div>
+
+  <mat-drawer #drawer
+              class="example-sidenav"
+              mode="side"
+              position="end"
+              [opened]="true"
+              style="min-width: 300px">
+    <div style="display: flex; align-items: center; justify-content: center; height: 100%">
+      <button type="button"
+              mat-raised-button
+              color="primary"
+              (click)="startNewGame()">
+        New Game
+      </button>
+    </div>
+  </mat-drawer>
+
+
+</mat-drawer-container>
 
 <!-- <router-outlet></router-outlet> -->
