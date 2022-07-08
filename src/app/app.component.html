@@ -36,8 +36,15 @@
               mode="side"
               position="end"
               [opened]="true"
-              style="min-width: 300px">
-    <div style="display: flex; align-items: center; justify-content: center; height: 100%">
+              style="min-width: 300px; max-width: 300px">
+    <div style="padding: 10px">
+      <mat-chip-list aria-label="Fish selection">
+        <ng-container *ngFor="let move of $moveList | async; even as isEven ">
+          <mat-chip>{{move}} {{isEven}}</mat-chip>
+        </ng-container>
+      </mat-chip-list>
+    </div>
+    <div style="display: flex; align-items: center; justify-content: center;">
       <button type="button"
               mat-raised-button
               color="primary"

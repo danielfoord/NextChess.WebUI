@@ -2,7 +2,7 @@ import { AfterViewInit, Component, ElementRef, HostListener, Inject, OnDestroy, 
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { WINDOW } from '@ng-web-apis/common';
 import { MoveChange, NgxChessBoardComponent, PieceIconInput } from 'ngx-chess-board';
-import { Subject, takeUntil } from 'rxjs';
+import { BehaviorSubject, Subject, takeUntil } from 'rxjs';
 import { PieceIconsService } from './piece-icons.service';
 import { StockfishService } from './stockfish.service';
 import { ThemeService } from './theme.service';
@@ -21,10 +21,10 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   private $destroyed = new Subject<void>();
 
   // TODO: This should move to game state
-  private moveList: string[] = [];
+  private usersTurn: boolean = true;
 
   // TODO: This should move to game state
-  private usersTurn: boolean = true;
+  $moveList = new BehaviorSubject<string[]>([]);
 
   size = 600;
 
@@ -57,6 +57,10 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       takeUntil(this.$destroyed)
     ).subscribe(() => console.info('UCI CHECK OK'));
 
+    this.stockfishService.onCheckMate.pipe(
+      takeUntil(this.$destroyed)
+    ).subscribe(() => console.info('CHECKMATE GG'));
+
     this.themeService.initialize();
     this.stockfishService.initialize();
   }
@@ -67,9 +71,12 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       takeUntil(this.$destroyed)
     ).subscribe((evt: MoveChange) => {
       // TODO: This should move to game state
-      this.moveList.push((evt as any).move);
+      const moves = this.$moveList.getValue();
+      moves.push((evt as any).move);
+      this.$moveList.next(moves);
+
       this.usersTurn = !this.usersTurn;
-      this.stockfishService.go(this.moveList);
+      this.stockfishService.go(moves);
     });
 
     this.boardRef.checkmate.pipe(

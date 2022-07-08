@@ -5,3 +5,22 @@
   align-items: center;
   overflow: hidden;
 }
+
+mat-chip-list {
+  display: block
+}
+
+mat-chip-list mat-chip {
+  display: block;
+  float: left;
+  clear: left;
+}
+
+mat-chip-list .mat-chip-input {
+  width: 100%;
+}
+
+/** Just for align close icon/button */
+mat-chip-list mat-chip .mat-chip-remove {
+  vertical-align: bottom;
+}

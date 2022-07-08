@@ -9,6 +9,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatButtonModule } from '@angular/material/button';
+import { MatChipsModule } from '@angular/material/chips';
 
 import { NgxChessBoardModule } from "ngx-chess-board";
 
@@ -24,6 +25,7 @@ import { NgxChessBoardModule } from "ngx-chess-board";
     MatSlideToggleModule,
     MatSidenavModule,
     MatButtonModule,
+    MatChipsModule,
     NgxChessBoardModule.forRoot()
   ],
   providers: [],
