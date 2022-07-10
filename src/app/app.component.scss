@@ -1,6 +1,18 @@
-.container {
+.board-container {
   height: calc(100vh - 64px);
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
+}
+
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  margin: 15px 0;
+  align-items: flex-start;
+}
+
+.radio-button {
+  margin: 5px;
 }

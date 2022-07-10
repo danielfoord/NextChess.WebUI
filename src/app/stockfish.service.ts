@@ -9,7 +9,8 @@ export class StockfishService {
 
   onReady: EventEmitter<void> = new EventEmitter();
   onUciCheckOk: EventEmitter<void> = new EventEmitter();
-  onMove: EventEmitter<string> = new EventEmitter();
+  onMove: EventEmitter<{ bestMove: string, ponder: string }> = new EventEmitter();
+  onCheckMate: EventEmitter<void> = new EventEmitter();
 
   constructor() { }
 
@@ -24,13 +25,19 @@ export class StockfishService {
         const isReady = /readyok/.test(data);
         const isUciOk = /uciok/.test(data);
         const receivedBestMove = /bestmove \w*/.test(data);
+        const receivedCheckmate = /info depth \d+\.{0,1}\d* score mate \d+\.{0,1}\d*/.test(data);
 
         if (isReady) {
           this.onReady.emit();
         } else if (isUciOk) {
           this.onUciCheckOk.emit();
         } else if (receivedBestMove) {
-          this.onMove.emit(data);
+          this.onMove.emit({
+            bestMove: data.split(' ')[1],
+            ponder: data.split(' ')[1]
+          });
+        } else if (receivedCheckmate) {
+          this.onCheckMate.emit();
         }
       }
     };

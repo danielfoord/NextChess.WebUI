@@ -3,23 +3,94 @@
              style="display: flex; justify-content: space-between">
   <div>Next Chess</div>
   <div>
-    <mat-slide-toggle #darkModeToggle [checked]="themeService.isDarkMode">
+    <mat-slide-toggle #darkModeToggle
+                      [checked]="themeService.isDarkMode">
       <small>Dark mode</small>
     </mat-slide-toggle>
   </div>
 </mat-toolbar>
 
-<div class="container">
-  <ngx-chess-board #board
-                   class="mat-elevation-z5"
-                   [lightTileColor]="themeService.lightSquareColor"
-                   [darkTileColor]="themeService.darkSquareColor"
-                   destinationPointColor="#abdaff"
-                   sourcePointColor="#abdaff"
-                   [showActivePiece]="false"
-                   [pieceIcons]="pieceIcons"
-                   [size]="size"
-                   [drawDisabled]="true"></ngx-chess-board>
-</div>
+<mat-drawer-container [hasBackdrop]="!(hasGameStarted$ | async)">
+
+  <div class="example-sidenav-content">
+
+    <div #boardContainer
+         class="board-container">
+      <ngx-chess-board #board
+                       class="mat-elevation-z5"
+                       [lightTileColor]="themeService.boardLightSquareColor"
+                       [darkTileColor]="themeService.boardDarkSquareColor"
+                       destinationPointColor="#abdaff"
+                       sourcePointColor="#abdaff"
+                       [showActivePiece]="false"
+                       [pieceIcons]="pieceIcons"
+                       [size]="size"
+                       [drawDisabled]="true"></ngx-chess-board>
+    </div>
+  </div>
+
+  <mat-drawer #drawer
+              class="example-sidenav"
+              mode="side"
+              position="end"
+              [opened]="true"
+              [disableClose]="true"
+              style="min-width: 300px; max-width: 300px; padding: 10px">
+
+    <ng-container *ngIf="hasGameStarted$ | async">
+      <div>
+        <!-- <mat-chip-list aria-orientation="horizontal">
+          <ng-container *ngFor="let move of moves$ | async; even as isEven ">
+            <mat-chip>{{move}} {{isEven}}</mat-chip>
+          </ng-container>
+        </mat-chip-list> -->
+        <button type="button"
+                mat-raised-button
+                color="primary"
+                (click)="showResignDialog()">
+          Resign Game
+        </button>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="!(hasGameStarted$ | async)">
+      <div>
+        <label id="example-radio-group-label">Play as</label>
+        <mat-radio-group aria-label="Select an option"
+                         class="radio-group"
+                         [formControl]="playerColor">
+          <mat-radio-button class="radio-button"
+                            value="white">White</mat-radio-button>
+          <mat-radio-button class="radio-button"
+                            value="black">Black</mat-radio-button>
+        </mat-radio-group>
+        <button type="button"
+                mat-raised-button
+                color="primary"
+                (click)="startNewGame()">
+          New Game
+        </button>
+      </div>
+    </ng-container>
+
+  </mat-drawer>
+
+
+</mat-drawer-container>
+
+
+<ng-template #resignDialog>
+  <h2 mat-dialog-title>Resign?</h2>
+  <mat-dialog-content>
+    Are you sure you want to resign this game?
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button mat-button
+            mat-dialog-close>No</button>
+    <button mat-button
+            mat-dialog-close
+            (click)="resign()">Yes</button>
+  </mat-dialog-actions>
+</ng-template>
 
 <!-- <router-outlet></router-outlet> -->

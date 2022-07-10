@@ -1,8 +1,11 @@
-import { AfterViewInit, Component, HostListener, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, Inject, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { FormControl } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { WINDOW } from '@ng-web-apis/common';
 import { MoveChange, NgxChessBoardComponent, PieceIconInput } from 'ngx-chess-board';
 import { Subject, takeUntil } from 'rxjs';
+import { GameStore } from './game.store';
 import { PieceIconsService } from './piece-icons.service';
 import { StockfishService } from './stockfish.service';
 import { ThemeService } from './theme.service';
@@ -10,35 +13,43 @@ import { ThemeService } from './theme.service';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
+  providers: [GameStore]
 })
 export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild('board', { static: false }) boardRef: NgxChessBoardComponent;
   @ViewChild('darkModeToggle', { static: false }) darkModeToggleRef: MatSlideToggle;
+  @ViewChild('boardContainer', { static: true }) boardContainerRef: ElementRef<HTMLElement>;
+  @ViewChild('resignDialog', { static: false }) resignDialogRef: TemplateRef<HTMLElement>;
 
   private $destroyed = new Subject<void>();
 
-  private moveList: string[] = [];
-
-  private usersTurn: boolean = true;
+  moves$ = this.gameStore.moves$;
+  hasGameStarted$ = this.gameStore.hasGameStarted$;
 
   size = 600;
 
+  boardPadding = 30;
+
   pieceIcons: PieceIconInput = this.pieceIconsService.getIcons();
+
+  playerColor = new FormControl(this.gameStore.getPlayerColor());
 
   constructor(
     @Inject(WINDOW) readonly windowRef: Window,
     readonly themeService: ThemeService,
     private readonly pieceIconsService: PieceIconsService,
-    private readonly stockfishService: StockfishService
+    private readonly stockfishService: StockfishService,
+    private readonly gameStore: GameStore,
+    public dialog: MatDialog
   ) { }
 
   ngOnInit(): void {
-    const size = this.windowRef.innerWidth > this.windowRef.innerHeight
-      ? this.windowRef.innerHeight
-      : this.windowRef.innerWidth;
-    this.size = size - 120;
+    const size = (this.windowRef.innerWidth - 300) > (this.windowRef.innerHeight - 64)
+      ? this.windowRef.innerHeight - 64
+      : this.windowRef.innerWidth - 300
+    this.size = size - (this.boardPadding * 2);
 
     this.stockfishService.onMove.pipe(
       takeUntil(this.$destroyed)
@@ -52,20 +63,21 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       takeUntil(this.$destroyed)
     ).subscribe(() => console.info('UCI CHECK OK'));
 
+    this.stockfishService.onCheckMate.pipe(
+      takeUntil(this.$destroyed)
+    ).subscribe(() => console.info('CHECKMATE GG'));
+
     this.themeService.initialize();
     this.stockfishService.initialize();
   }
 
   ngAfterViewInit(): void {
-    // console.debug(this.boardRef);
 
     this.boardRef.moveChange.pipe(
       takeUntil(this.$destroyed)
     ).subscribe((evt: MoveChange) => {
-      // console.debug(evt);
-      this.moveList.push((evt as any).move);
-      this.usersTurn = !this.usersTurn;
-      this.stockfishService.go(this.moveList);
+      this.gameStore.makeMove((evt as any).move);
+      this.stockfishService.go(this.gameStore.getMoves());
     });
 
     this.boardRef.checkmate.pipe(
@@ -87,18 +99,41 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   @HostListener('window:resize', ['$event'])
-  onResize(event: UIEvent) {
-    const windowRef = event.target as Window;
-    const size = windowRef.innerWidth > windowRef.innerHeight
-      ? windowRef.innerHeight
-      : windowRef.innerWidth;
-    this.size = size - 120;
+  onResize(_: UIEvent) {
+    const size = this.boardContainerRef.nativeElement.clientWidth > this.boardContainerRef.nativeElement.clientHeight
+      ? this.boardContainerRef.nativeElement.clientHeight
+      : this.boardContainerRef.nativeElement.clientWidth;
+    this.size = size - (this.boardPadding * 2);
   }
 
-  private handleMoveFromEngine(engineResponse: string) {
-    const move = engineResponse.split(' ')[1];
-    if (!this.usersTurn) {
-      this.boardRef.move(move);
+  startNewGame() {
+    if (!this.playerColor) {
+      return;
+    }
+
+    this.gameStore.startNewGame({ 
+      playerColor: this.playerColor.value as 'white' | 'black'
+    });
+
+    if (this.playerColor.value === 'black') {
+      this.boardRef.reverse();
+    }
+
+    this.stockfishService.go(this.gameStore.getMoves());
+  }
+
+  showResignDialog() {
+    this.dialog.open(this.resignDialogRef);
+  }
+
+  resign() {
+    this.gameStore.resetGame();
+    this.boardRef.reset();
+  }
+
+  private handleMoveFromEngine(move: { bestMove: string, ponder: string }) {
+    if (!this.gameStore.getIsUsersTurn()) {
+      this.boardRef.move(move.bestMove);
     }
   }
 }
