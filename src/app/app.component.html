@@ -37,51 +37,59 @@
               [disableClose]="true"
               style="min-width: 300px; max-width: 300px; padding: 10px">
 
-    <ng-container *ngIf="hasGameStarted$ | async">
-      <div>
-        <h2>Moves</h2>
-        <table style="width: 100%">
-          <ng-container *ngFor="let move of playerMoves$ | async; even as isEven; index as i">
-            <tr>
-              <td style="width: 50%;">{{i+1}}. <b>{{move[0]}}</b></td>
-              <td><b>{{move[1]}}</b></td>
-            </tr>
-          </ng-container>
-        </table>
-        <button type="button"
-                mat-raised-button
-                color="primary"
-                (click)="showResignDialog()">
-          Resign Game
-        </button>
-      </div>
+    <ng-container *ngIf="!(hasGameStarted$ | async)">
+      <ng-container *ngTemplateOutlet="newGameMenu"></ng-container>
     </ng-container>
 
-    <ng-container *ngIf="!(hasGameStarted$ | async)">
-      <div>
-        <label id="example-radio-group-label">Play as</label>
-        <mat-radio-group aria-label="Select an option"
-                         class="radio-group"
-                         [formControl]="playerColor">
-          <mat-radio-button class="radio-button"
-                            value="white">White</mat-radio-button>
-          <mat-radio-button class="radio-button"
-                            value="black">Black</mat-radio-button>
-        </mat-radio-group>
-        <button type="button"
-                mat-raised-button
-                color="primary"
-                (click)="startNewGame()">
-          New Game
-        </button>
-      </div>
+    <ng-container *ngIf="hasGameStarted$ | async">
+      <ng-container *ngTemplateOutlet="gameInProgressMenu"></ng-container>
     </ng-container>
 
   </mat-drawer>
-
-
 </mat-drawer-container>
 
+
+<ng-template #newGameMenu>
+  <div>
+    <label id="example-radio-group-label">Play as</label>
+    <mat-radio-group aria-label="Select an option"
+                     class="radio-group"
+                     [formControl]="playerColor">
+      <mat-radio-button class="radio-button"
+                        value="white">White</mat-radio-button>
+      <mat-radio-button class="radio-button"
+                        value="black">Black</mat-radio-button>
+    </mat-radio-group>
+    <button type="button"
+            mat-raised-button
+            class="block-button"
+            color="primary"
+            (click)="startNewGame()">
+      New Game
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #gameInProgressMenu>
+  <div>
+    <h2>Moves</h2>
+    <table style="width: 100%">
+      <ng-container *ngFor="let move of playerMoves$ | async; even as isEven; index as i">
+        <tr>
+          <td style="width: 50%;">{{i+1}}. <b>{{move[0]}}</b></td>
+          <td><b>{{move[1]}}</b></td>
+        </tr>
+      </ng-container>
+    </table>
+    <button type="button"
+            mat-raised-button
+            color="primary"
+            class="block-button"
+            (click)="showResignDialog()">
+      Resign Game
+    </button>
+  </div>
+</ng-template>
 
 <ng-template #resignDialog>
   <h2 mat-dialog-title>Resign?</h2>
