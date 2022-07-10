@@ -5,10 +5,10 @@ import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { WINDOW } from '@ng-web-apis/common';
 import { MoveChange, NgxChessBoardComponent, PieceIconInput } from 'ngx-chess-board';
 import { map, Subject, takeUntil } from 'rxjs';
-import { GameStore } from './game.store';
-import { PieceIconsService } from './piece-icons.service';
-import { StockfishService } from './stockfish.service';
-import { ThemeService } from './theme.service';
+import { GameStore } from './stores/game.store';
+import { PieceIconsService } from './services/piece-icons.service';
+import { StockfishService } from './services/stockfish.service';
+import { ThemeService } from './services/theme.service';
 
 @Component({
   selector: 'app-root',
