@@ -1,4 +1,4 @@
-# NextChess
+# Next Chess
 
 ![Preview Image](docs/preview.png)
 
