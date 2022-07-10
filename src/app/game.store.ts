@@ -25,6 +25,20 @@ export class GameStore extends ComponentStore<GameState> {
   }
 
   readonly moves$: Observable<string[]> = this.select(state => state.moves);
+
+  readonly playerMoves$: Observable<{ white: string[], black: string[] }> = this.select(state => {
+    const white: string[] = [];
+    const black: string[] = [];
+    state.moves.forEach((move, i) => {
+      if (i % 2 === 0) {
+        white.push(move);
+      } else {
+        black.push(move);
+      }
+    });
+    return { white, black };
+  });
+
   readonly hasGameStarted$: Observable<boolean> = this.select(state => state.hasGameStarted);
   readonly getMoves = (): string[] => this.get(state => state.moves);
   readonly getIsUsersTurn = (): boolean => this.get(state => state.isUsersTurn);

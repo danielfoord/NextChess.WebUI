@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { WINDOW } from '@ng-web-apis/common';
 import { MoveChange, NgxChessBoardComponent, PieceIconInput } from 'ngx-chess-board';
-import { Subject, takeUntil } from 'rxjs';
+import { map, Subject, takeUntil } from 'rxjs';
 import { GameStore } from './game.store';
 import { PieceIconsService } from './piece-icons.service';
 import { StockfishService } from './stockfish.service';
@@ -22,10 +22,17 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('darkModeToggle', { static: false }) darkModeToggleRef: MatSlideToggle;
   @ViewChild('boardContainer', { static: true }) boardContainerRef: ElementRef<HTMLElement>;
   @ViewChild('resignDialog', { static: false }) resignDialogRef: TemplateRef<HTMLElement>;
+  @ViewChild('checkMateDialog', { static: false }) checkMateDialogRef: TemplateRef<HTMLElement>;
 
   private $destroyed = new Subject<void>();
 
-  moves$ = this.gameStore.moves$;
+  playerMoves$ = this.gameStore.playerMoves$.pipe(
+    map(playerMoves => (
+      playerMoves.white.reduce((acc, curr, i) => {
+        return [...acc, [curr, playerMoves.black[i]]];
+      }, [] as string[][]))
+    )
+  );
   hasGameStarted$ = this.gameStore.hasGameStarted$;
 
   size = 600;
@@ -65,7 +72,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.stockfishService.onCheckMate.pipe(
       takeUntil(this.$destroyed)
-    ).subscribe(() => console.info('CHECKMATE GG'));
+    ).subscribe(() => this.dialog.open(this.checkMateDialogRef));
 
     this.themeService.initialize();
     this.stockfishService.initialize();
@@ -111,7 +118,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    this.gameStore.startNewGame({ 
+    this.gameStore.startNewGame({
       playerColor: this.playerColor.value as 'white' | 'black'
     });
 
@@ -126,7 +133,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     this.dialog.open(this.resignDialogRef);
   }
 
-  resign() {
+  reset() {
     this.gameStore.resetGame();
     this.boardRef.reset();
   }
