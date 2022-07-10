@@ -6,21 +6,13 @@
   overflow: hidden;
 }
 
-mat-chip-list {
-  display: block
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  margin: 15px 0;
+  align-items: flex-start;
 }
 
-mat-chip-list mat-chip {
-  display: block;
-  float: left;
-  clear: left;
-}
-
-mat-chip-list .mat-chip-input {
-  width: 100%;
-}
-
-/** Just for align close icon/button */
-mat-chip-list mat-chip .mat-chip-remove {
-  vertical-align: bottom;
+.radio-button {
+  margin: 5px;
 }

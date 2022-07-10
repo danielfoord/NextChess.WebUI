@@ -10,9 +10,7 @@
   </div>
 </mat-toolbar>
 
-
-
-<mat-drawer-container>
+<mat-drawer-container [hasBackdrop]="!(hasGameStarted$ | async)">
 
   <div class="example-sidenav-content">
 
@@ -36,25 +34,63 @@
               mode="side"
               position="end"
               [opened]="true"
-              style="min-width: 300px; max-width: 300px">
-    <div style="padding: 10px">
-      <mat-chip-list aria-label="Fish selection">
-        <ng-container *ngFor="let move of $moveList | async; even as isEven ">
-          <mat-chip>{{move}} {{isEven}}</mat-chip>
-        </ng-container>
-      </mat-chip-list>
-    </div>
-    <div style="display: flex; align-items: center; justify-content: center;">
-      <button type="button"
-              mat-raised-button
-              color="primary"
-              (click)="startNewGame()">
-        New Game
-      </button>
-    </div>
+              [disableClose]="true"
+              style="min-width: 300px; max-width: 300px; padding: 10px">
+
+    <ng-container *ngIf="hasGameStarted$ | async">
+      <div>
+        <!-- <mat-chip-list aria-orientation="horizontal">
+          <ng-container *ngFor="let move of moves$ | async; even as isEven ">
+            <mat-chip>{{move}} {{isEven}}</mat-chip>
+          </ng-container>
+        </mat-chip-list> -->
+        <button type="button"
+                mat-raised-button
+                color="primary"
+                (click)="showResignDialog()">
+          Resign Game
+        </button>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="!(hasGameStarted$ | async)">
+      <div>
+        <label id="example-radio-group-label">Play as</label>
+        <mat-radio-group aria-label="Select an option"
+                         class="radio-group"
+                         [formControl]="playerColor">
+          <mat-radio-button class="radio-button"
+                            value="white">White</mat-radio-button>
+          <mat-radio-button class="radio-button"
+                            value="black">Black</mat-radio-button>
+        </mat-radio-group>
+        <button type="button"
+                mat-raised-button
+                color="primary"
+                (click)="startNewGame()">
+          New Game
+        </button>
+      </div>
+    </ng-container>
+
   </mat-drawer>
 
 
 </mat-drawer-container>
+
+
+<ng-template #resignDialog>
+  <h2 mat-dialog-title>Resign?</h2>
+  <mat-dialog-content>
+    Are you sure you want to resign this game?
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button mat-button
+            mat-dialog-close>No</button>
+    <button mat-button
+            mat-dialog-close
+            (click)="resign()">Yes</button>
+  </mat-dialog-actions>
+</ng-template>
 
 <!-- <router-outlet></router-outlet> -->

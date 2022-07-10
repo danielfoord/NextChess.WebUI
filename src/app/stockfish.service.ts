@@ -9,7 +9,7 @@ export class StockfishService {
 
   onReady: EventEmitter<void> = new EventEmitter();
   onUciCheckOk: EventEmitter<void> = new EventEmitter();
-  onMove: EventEmitter<string> = new EventEmitter();
+  onMove: EventEmitter<{ bestMove: string, ponder: string }> = new EventEmitter();
   onCheckMate: EventEmitter<void> = new EventEmitter();
 
   constructor() { }
@@ -32,7 +32,10 @@ export class StockfishService {
         } else if (isUciOk) {
           this.onUciCheckOk.emit();
         } else if (receivedBestMove) {
-          this.onMove.emit(data);
+          this.onMove.emit({
+            bestMove: data.split(' ')[1],
+            ponder: data.split(' ')[1]
+          });
         } else if (receivedCheckmate) {
           this.onCheckMate.emit();
         }

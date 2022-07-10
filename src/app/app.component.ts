@@ -1,8 +1,11 @@
-import { AfterViewInit, Component, ElementRef, HostListener, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, Inject, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { FormControl } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { WINDOW } from '@ng-web-apis/common';
 import { MoveChange, NgxChessBoardComponent, PieceIconInput } from 'ngx-chess-board';
-import { BehaviorSubject, Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
+import { GameStore } from './game.store';
 import { PieceIconsService } from './piece-icons.service';
 import { StockfishService } from './stockfish.service';
 import { ThemeService } from './theme.service';
@@ -10,21 +13,20 @@ import { ThemeService } from './theme.service';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
+  providers: [GameStore]
 })
 export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild('board', { static: false }) boardRef: NgxChessBoardComponent;
   @ViewChild('darkModeToggle', { static: false }) darkModeToggleRef: MatSlideToggle;
   @ViewChild('boardContainer', { static: true }) boardContainerRef: ElementRef<HTMLElement>;
+  @ViewChild('resignDialog', { static: false }) resignDialogRef: TemplateRef<HTMLElement>;
 
   private $destroyed = new Subject<void>();
 
-  // TODO: This should move to game state
-  private usersTurn: boolean = true;
-
-  // TODO: This should move to game state
-  $moveList = new BehaviorSubject<string[]>([]);
+  moves$ = this.gameStore.moves$;
+  hasGameStarted$ = this.gameStore.hasGameStarted$;
 
   size = 600;
 
@@ -32,11 +34,15 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
   pieceIcons: PieceIconInput = this.pieceIconsService.getIcons();
 
+  playerColor = new FormControl(this.gameStore.getPlayerColor());
+
   constructor(
     @Inject(WINDOW) readonly windowRef: Window,
     readonly themeService: ThemeService,
     private readonly pieceIconsService: PieceIconsService,
-    private readonly stockfishService: StockfishService
+    private readonly stockfishService: StockfishService,
+    private readonly gameStore: GameStore,
+    public dialog: MatDialog
   ) { }
 
   ngOnInit(): void {
@@ -70,13 +76,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     this.boardRef.moveChange.pipe(
       takeUntil(this.$destroyed)
     ).subscribe((evt: MoveChange) => {
-      // TODO: This should move to game state
-      const moves = this.$moveList.getValue();
-      moves.push((evt as any).move);
-      this.$moveList.next(moves);
-
-      this.usersTurn = !this.usersTurn;
-      this.stockfishService.go(moves);
+      this.gameStore.makeMove((evt as any).move);
+      this.stockfishService.go(this.gameStore.getMoves());
     });
 
     this.boardRef.checkmate.pipe(
@@ -106,13 +107,33 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   startNewGame() {
-    console.info('START NEW GAME');
+    if (!this.playerColor) {
+      return;
+    }
+
+    this.gameStore.startNewGame({ 
+      playerColor: this.playerColor.value as 'white' | 'black'
+    });
+
+    if (this.playerColor.value === 'black') {
+      this.boardRef.reverse();
+    }
+
+    this.stockfishService.go(this.gameStore.getMoves());
   }
 
-  private handleMoveFromEngine(engineResponse: string) {
-    const move = engineResponse.split(' ')[1];
-    if (!this.usersTurn) {
-      this.boardRef.move(move);
+  showResignDialog() {
+    this.dialog.open(this.resignDialogRef);
+  }
+
+  resign() {
+    this.gameStore.resetGame();
+    this.boardRef.reset();
+  }
+
+  private handleMoveFromEngine(move: { bestMove: string, ponder: string }) {
+    if (!this.gameStore.getIsUsersTurn()) {
+      this.boardRef.move(move.bestMove);
     }
   }
 }

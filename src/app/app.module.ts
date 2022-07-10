@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { ReactiveFormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -10,6 +11,8 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatDialogModule } from '@angular/material/dialog';
 
 import { NgxChessBoardModule } from "ngx-chess-board";
 
@@ -21,11 +24,14 @@ import { NgxChessBoardModule } from "ngx-chess-board";
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
+    ReactiveFormsModule,
     MatToolbarModule,
     MatSlideToggleModule,
     MatSidenavModule,
     MatButtonModule,
     MatChipsModule,
+    MatRadioModule,
+    MatDialogModule,
     NgxChessBoardModule.forRoot()
   ],
   providers: [],
