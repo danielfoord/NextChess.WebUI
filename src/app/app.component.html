@@ -12,46 +12,45 @@
 
 <mat-drawer-container [hasBackdrop]="!(hasGameStarted$ | async)">
 
-  <div class="example-sidenav-content">
-
-    <div #boardContainer
-         class="board-container">
-      <ngx-chess-board #board
-                       class="mat-elevation-z5"
-                       [lightTileColor]="themeService.boardLightSquareColor"
-                       [darkTileColor]="themeService.boardDarkSquareColor"
-                       destinationPointColor="#abdaff"
-                       sourcePointColor="#abdaff"
-                       [showActivePiece]="false"
-                       [pieceIcons]="pieceIcons"
-                       [size]="size"
-                       [drawDisabled]="true"></ngx-chess-board>
-    </div>
-  </div>
+  <ng-container *ngTemplateOutlet="chessBoardTmpl"></ng-container>
 
   <mat-drawer #drawer
-              class="example-sidenav"
               mode="side"
               position="end"
               [opened]="true"
               [disableClose]="true"
-              style="min-width: 300px; max-width: 300px; padding: 10px">
+              class="drawer">
 
     <ng-container *ngIf="!(hasGameStarted$ | async)">
-      <ng-container *ngTemplateOutlet="newGameMenu"></ng-container>
+      <ng-container *ngTemplateOutlet="newGameMenuTmpl"></ng-container>
     </ng-container>
 
     <ng-container *ngIf="hasGameStarted$ | async">
-      <ng-container *ngTemplateOutlet="gameInProgressMenu"></ng-container>
+      <ng-container *ngTemplateOutlet="gameInProgressMenuTmpl"></ng-container>
     </ng-container>
 
   </mat-drawer>
 </mat-drawer-container>
 
+<ng-template #chessBoardTmpl>
+  <div #boardContainer
+       class="board-container">
+    <ngx-chess-board #board
+                     class="mat-elevation-z5"
+                     [lightTileColor]="themeService.boardLightSquareColor"
+                     [darkTileColor]="themeService.boardDarkSquareColor"
+                     destinationPointColor="#abdaff"
+                     sourcePointColor="#abdaff"
+                     [showActivePiece]="false"
+                     [pieceIcons]="pieceIcons"
+                     [size]="size"
+                     [drawDisabled]="true"></ngx-chess-board>
+  </div>
+</ng-template>
 
-<ng-template #newGameMenu>
+<ng-template #newGameMenuTmpl>
   <div>
-    <label id="example-radio-group-label">Play as</label>
+    <h2>Play as</h2>
     <mat-radio-group aria-label="Select an option"
                      class="radio-group"
                      [formControl]="playerColor">
@@ -70,17 +69,24 @@
   </div>
 </ng-template>
 
-<ng-template #gameInProgressMenu>
+<ng-template #gameInProgressMenuTmpl>
   <div>
     <h2>Moves</h2>
-    <table style="width: 100%">
-      <ng-container *ngFor="let move of playerMoves$ | async; even as isEven; index as i">
-        <tr>
-          <td style="width: 50%;">{{i+1}}. <b>{{move[0]}}</b></td>
-          <td><b>{{move[1]}}</b></td>
-        </tr>
+    <div *ngIf="playerMoves$ | async as playerMoves">
+      <ng-container *ngIf="playerMoves.length === 0">
+        <div style="padding-bottom:10px">Empty</div>
       </ng-container>
-    </table>
+      <ng-container *ngIf="playerMoves.length > 0">
+        <table class="move-table">
+          <ng-container *ngFor="let move of playerMoves; even as isEven; index as i">
+            <tr>
+              <td>{{i+1}}. {{move[0]}}</td>
+              <td>{{move[1]}}</td>
+            </tr>
+          </ng-container>
+        </table>
+      </ng-container>
+    </div>
     <button type="button"
             mat-raised-button
             color="primary"
@@ -91,7 +97,7 @@
   </div>
 </ng-template>
 
-<ng-template #resignDialog>
+<ng-template #resignDialogTmpl>
   <h2 mat-dialog-title>Resign?</h2>
   <mat-dialog-content>
     Are you sure you want to resign this game?
@@ -105,7 +111,7 @@
   </mat-dialog-actions>
 </ng-template>
 
-<ng-template #checkMateDialog>
+<ng-template #checkMateDialogTmpl>
   <h2 mat-dialog-title>Game Over</h2>
   <mat-dialog-content>
     TODO: Show who won the game

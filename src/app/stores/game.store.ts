@@ -44,13 +44,11 @@ export class GameStore extends ComponentStore<GameState> {
   readonly getIsUsersTurn = (): boolean => this.get(state => state.isUsersTurn);
   readonly getPlayerColor = (): string => this.get(state => state.playerColor);
 
-  readonly makeMove = this.updater((state, move: string) => {
-    return {
-      ...state,
-      moves: [...state.moves, move],
-      isUsersTurn: !state.isUsersTurn
-    };
-  });
+  readonly makeMove = this.updater((state, move: string) => ({
+    ...state,
+    moves: [...state.moves, move],
+    isUsersTurn: !state.isUsersTurn
+  }));
 
   readonly startNewGame = this.updater((state, config: NewGameConfig) => ({
     ...state,

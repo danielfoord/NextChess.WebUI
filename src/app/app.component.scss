@@ -20,3 +20,18 @@
 .block-button {
   width: 100%;
 }
+
+.drawer {
+  min-width: 300px;
+  max-width: 300px;
+  padding: 10px
+}
+
+.move-table {
+  width: 100%;
+  margin-bottom: 10px;
+
+  :first-child {
+    width: 50%;
+  }
+}

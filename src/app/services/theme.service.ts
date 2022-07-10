@@ -9,10 +9,10 @@ export class ThemeService {
 
   isDarkMode: boolean = false;
 
-  ligtModeDarkSquareColor = '#2979ff';
+  lightModeDarkSquareColor = '#009688';
   darkModeDarkSqaureColor = '#9c27b0';
 
-  ligtModeLightSquareColor = '#fefefe';
+  lightModeLightSquareColor = '#fefefe';
   darkModeLightSqaureColor = '#c3c3c3';
 
   constructor(
@@ -20,11 +20,11 @@ export class ThemeService {
     @Inject(DOCUMENT) private readonly document: Document) { }
 
   get boardLightSquareColor() {
-    return this.isDarkMode ? this.darkModeLightSqaureColor : this.ligtModeLightSquareColor;
+    return this.isDarkMode ? this.darkModeLightSqaureColor : this.lightModeLightSquareColor;
   }
 
   get boardDarkSquareColor() {
-    return this.isDarkMode ? this.darkModeDarkSqaureColor : this.ligtModeDarkSquareColor;
+    return this.isDarkMode ? this.darkModeDarkSqaureColor : this.lightModeDarkSquareColor;
   }
 
   initialize() {

@@ -20,9 +20,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild('board', { static: false }) boardRef: NgxChessBoardComponent;
   @ViewChild('darkModeToggle', { static: false }) darkModeToggleRef: MatSlideToggle;
-  @ViewChild('boardContainer', { static: true }) boardContainerRef: ElementRef<HTMLElement>;
-  @ViewChild('resignDialog', { static: false }) resignDialogRef: TemplateRef<HTMLElement>;
-  @ViewChild('checkMateDialog', { static: false }) checkMateDialogRef: TemplateRef<HTMLElement>;
+  @ViewChild('boardContainer', { static: false }) boardContainerRef: ElementRef<HTMLElement>;
+  @ViewChild('resignDialogTmpl', { static: false }) resignDialogRef: TemplateRef<HTMLElement>;
+  @ViewChild('checkMateDialogTmpl', { static: false }) checkMateDialogRef: TemplateRef<HTMLElement>;
 
   private $destroyed = new Subject<void>();
 
