@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { WINDOW } from '@ng-web-apis/common';
 import { MoveChange, NgxChessBoardComponent, PieceIconInput } from 'ngx-chess-board';
-import { map, Subject, takeUntil } from 'rxjs';
+import { fromEvent, map, Subject, takeUntil } from 'rxjs';
 import { GameStore } from './stores/game.store';
 import { PieceIconsService } from './services/piece-icons.service';
 import { StockfishService } from './services/stockfish.service';
@@ -26,17 +26,21 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private $destroyed = new Subject<void>();
 
-  playerMoves$ = this.gameStore.playerMoves$.pipe(
-    map(playerMoves => (
-      playerMoves.white.reduce((acc, curr, i) => {
-        return [...acc, [curr, playerMoves.black[i]]];
-      }, [] as string[][]))
-    )
+  pgn$ = this.gameStore.state$.pipe(
+    map(state => state.pgn
+      .split(/\d\./)
+      .filter(m => !!m)
+      .map(pair => pair
+        .split(' ')
+        .filter(m => !!m)))
   );
+
   hasGameStarted$ = this.gameStore.hasGameStarted$;
 
+  // TODO: Move to directive
   size = 600;
 
+  // TODO: Move to directive
   boardPadding = 30;
 
   pieceIcons: PieceIconInput = this.pieceIconsService.getIcons();
@@ -53,6 +57,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
+    // TODO: Move to directive
     const size = (this.windowRef.innerWidth - 300) > (this.windowRef.innerHeight - 64)
       ? this.windowRef.innerHeight - 64
       : this.windowRef.innerWidth - 300
@@ -74,6 +79,16 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       takeUntil(this.$destroyed)
     ).subscribe(() => this.dialog.open(this.checkMateDialogRef));
 
+    // TODO: Move to directive
+    fromEvent(this.windowRef, 'resize').pipe(
+      takeUntil(this.$destroyed)
+    ).subscribe(_ => {
+      const size = this.boardContainerRef.nativeElement.clientWidth > this.boardContainerRef.nativeElement.clientHeight
+        ? this.boardContainerRef.nativeElement.clientHeight
+        : this.boardContainerRef.nativeElement.clientWidth;
+      this.size = size - (this.boardPadding * 2);
+    });
+
     this.themeService.initialize();
     this.stockfishService.initialize();
   }
@@ -83,7 +98,12 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     this.boardRef.moveChange.pipe(
       takeUntil(this.$destroyed)
     ).subscribe((evt: MoveChange) => {
-      this.gameStore.makeMove((evt as any).move);
+      console.debug(evt);
+      this.gameStore.makeMove({
+        move: (evt as any).move,
+        fen: evt.fen,
+        pgn: evt.pgn.pgn
+      });
       this.stockfishService.go(this.gameStore.getMoves());
     });
 
@@ -103,14 +123,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.$destroyed.next();
     this.$destroyed.complete();
-  }
-
-  @HostListener('window:resize', ['$event'])
-  onResize(_: UIEvent) {
-    const size = this.boardContainerRef.nativeElement.clientWidth > this.boardContainerRef.nativeElement.clientHeight
-      ? this.boardContainerRef.nativeElement.clientHeight
-      : this.boardContainerRef.nativeElement.clientWidth;
-    this.size = size - (this.boardPadding * 2);
   }
 
   startNewGame() {

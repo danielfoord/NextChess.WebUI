@@ -72,13 +72,13 @@
 <ng-template #gameInProgressMenuTmpl>
   <div>
     <h2>Moves</h2>
-    <div *ngIf="playerMoves$ | async as playerMoves">
-      <ng-container *ngIf="playerMoves.length === 0">
+    <div *ngIf="pgn$ | async as pgn">
+      <ng-container *ngIf="pgn.length === 0">
         <div style="padding-bottom:10px">Empty</div>
       </ng-container>
-      <ng-container *ngIf="playerMoves.length > 0">
+      <ng-container *ngIf="pgn.length > 0">
         <table class="move-table">
-          <ng-container *ngFor="let move of playerMoves; even as isEven; index as i">
+          <ng-container *ngFor="let move of pgn; even as isEven; index as i">
             <tr>
               <td>{{i+1}}. {{move[0]}}</td>
               <td>{{move[1]}}</td>

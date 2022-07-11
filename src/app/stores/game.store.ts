@@ -7,6 +7,8 @@ export interface GameState {
   isUsersTurn: boolean;
   hasGameStarted: boolean;
   playerColor: 'white' | 'black';
+  fen: string;
+  pgn: string;
 }
 
 interface NewGameConfig {
@@ -15,17 +17,19 @@ interface NewGameConfig {
 
 @Injectable()
 export class GameStore extends ComponentStore<GameState> {
+
   constructor() {
     super({
       hasGameStarted: false,
       isUsersTurn: true,
       moves: [],
-      playerColor: 'white'
+      playerColor: 'white',
+      fen: '',
+      pgn: ''
     })
   }
 
-  readonly moves$: Observable<string[]> = this.select(state => state.moves);
-
+  // Accessors
   readonly playerMoves$: Observable<{ white: string[], black: string[] }> = this.select(state => {
     const white: string[] = [];
     const black: string[] = [];
@@ -39,15 +43,20 @@ export class GameStore extends ComponentStore<GameState> {
     return { white, black };
   });
 
+  readonly moves$: Observable<string[]> = this.select(state => state.moves);
   readonly hasGameStarted$: Observable<boolean> = this.select(state => state.hasGameStarted);
+
+  // Mutators
   readonly getMoves = (): string[] => this.get(state => state.moves);
   readonly getIsUsersTurn = (): boolean => this.get(state => state.isUsersTurn);
   readonly getPlayerColor = (): string => this.get(state => state.playerColor);
 
-  readonly makeMove = this.updater((state, move: string) => ({
+  readonly makeMove = this.updater((state, data: { move: string, fen: string, pgn: string }) => ({
     ...state,
-    moves: [...state.moves, move],
-    isUsersTurn: !state.isUsersTurn
+    moves: [...state.moves, data.move],
+    isUsersTurn: !state.isUsersTurn,
+    fen: data.fen,
+    pgn: data.pgn
   }));
 
   readonly startNewGame = this.updater((state, config: NewGameConfig) => ({
@@ -61,6 +70,8 @@ export class GameStore extends ComponentStore<GameState> {
     hasGameStarted: false,
     isUsersTurn: true,
     moves: [],
-    playerColor: 'white'
+    playerColor: 'white',
+    fen: '',
+    pgn: ''
   }));
 }
