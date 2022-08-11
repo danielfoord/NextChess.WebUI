@@ -1,9 +1,9 @@
-import { AfterViewInit, Component, ElementRef, HostListener, Inject, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Inject, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { WINDOW } from '@ng-web-apis/common';
-import { MoveChange, NgxChessBoardComponent, PieceIconInput } from 'ngx-chess-board';
+import { MoveChange, NgxChessBoardComponent, PieceIconInput } from '@danielfoord/ngx-chess-board';
 import { fromEvent, map, Subject, takeUntil } from 'rxjs';
 import { GameStore } from './stores/game.store';
 import { PieceIconsService } from './services/piece-icons.service';

@@ -14,7 +14,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatDialogModule } from '@angular/material/dialog';
 
-import { NgxChessBoardModule } from "ngx-chess-board";
+import { NgxChessBoardModule } from "@danielfoord/ngx-chess-board";
 
 @NgModule({
   declarations: [

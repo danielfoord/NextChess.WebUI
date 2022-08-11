@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { PieceIconInput } from 'ngx-chess-board';
+import { PieceIconInput } from '@danielfoord/ngx-chess-board';
 
 @Injectable({
   providedIn: 'root'
