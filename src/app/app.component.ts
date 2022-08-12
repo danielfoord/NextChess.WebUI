@@ -60,7 +60,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     // TODO: Move to directive
     const size = (this.windowRef.innerWidth - 300) > (this.windowRef.innerHeight - 64)
       ? this.windowRef.innerHeight - 64
-      : this.windowRef.innerWidth - 300
+      : this.windowRef.innerWidth - 300;
+
     this.size = size - (this.boardPadding * 2);
 
     this.stockfishService.onMove.pipe(
@@ -77,7 +78,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.stockfishService.onCheckMate.pipe(
       takeUntil(this.$destroyed)
-    ).subscribe(() => { 
+    ).subscribe(() => {
       this.dialog.open(this.checkMateDialogRef);
     });
 
