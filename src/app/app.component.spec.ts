@@ -1,12 +1,32 @@
 import { TestBed } from '@angular/core/testing';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
+import { NgxChessBoardModule } from '@danielfoord/ngx-chess-board';
 import { AppComponent } from './app.component';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
-        RouterTestingModule
+        RouterTestingModule,
+        MatToolbarModule,
+        MatSlideToggleModule,
+        MatSidenavModule,
+        MatButtonModule,
+        MatChipsModule,
+        MatRadioModule,
+        MatDialogModule,
+        BrowserAnimationsModule,
+        ReactiveFormsModule,
+        NgxChessBoardModule.forRoot()
       ],
       declarations: [
         AppComponent
@@ -20,16 +40,10 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have as title 'next_chess'`, () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app.title).toEqual('next_chess');
-  });
-
-  it('should render title', () => {
+  it('should render chess board', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.content span')?.textContent).toContain('next_chess app is running!');
+    expect(compiled.querySelector('#board')).toBeDefined();
   });
 });
