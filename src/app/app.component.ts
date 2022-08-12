@@ -77,7 +77,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.stockfishService.onCheckMate.pipe(
       takeUntil(this.$destroyed)
-    ).subscribe(() => this.dialog.open(this.checkMateDialogRef));
+    ).subscribe(() => { 
+      this.dialog.open(this.checkMateDialogRef);
+    });
 
     // TODO: Move to directive
     fromEvent(this.windowRef, 'resize').pipe(

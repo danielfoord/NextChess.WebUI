@@ -16,6 +16,8 @@ import { MatDialogModule } from '@angular/material/dialog';
 
 import { NgxChessBoardModule } from "@danielfoord/ngx-chess-board";
 
+import { LetModule } from '@ngrx/component';
+
 @NgModule({
   declarations: [
     AppComponent
@@ -32,6 +34,7 @@ import { NgxChessBoardModule } from "@danielfoord/ngx-chess-board";
     MatChipsModule,
     MatRadioModule,
     MatDialogModule,
+    LetModule,
     NgxChessBoardModule.forRoot()
   ],
   providers: [],

@@ -1,0 +1,23 @@
+name: Angular CI
+
+on:
+  push:
+    branches: [ "master", "develop" ]
+  pull_request:
+    branches: [ "master", "develop" ]
+
+jobs:
+  Build_And_Test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Setup Docker
+      uses: docker-practice/actions-setup-docker@master
+    
+    - name: Run WebUI Unit Tests
+      working-directory: ./MServices.WebApi
+      run: |
+        export DOCKER_BUILDKIT=1 && docker build . -t nextchess_webui_unit_tests --file ./Dockerfile.Tests
+        docker run --rm nextchess_webui_unit_tests
