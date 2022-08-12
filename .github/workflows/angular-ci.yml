@@ -18,6 +18,9 @@ jobs:
     - name: Setup Docker
       uses: docker-practice/actions-setup-docker@master
     
+    - run: echo //npm.pkg.github.com/:_authToken=${{secrets.PACKAGE_TOKEN}} > .npmrc
+    - run: echo @danielfoord:registry=https://npm.pkg.github.com >> .npmrc
+        
     - name: Run WebUI Unit Tests
       run: |
         export DOCKER_BUILDKIT=1 && docker build . -t nextchess_webui_unit_tests --file ./Dockerfile.Tests
