@@ -9,9 +9,10 @@ export interface GameState {
   playerColor: 'white' | 'black';
   fen: string;
   pgn: string;
+  checkmate: 'white' | 'black' | null;
 }
 
-interface NewGameConfig {
+interface GameConfig {
   playerColor: 'white' | 'black';
 }
 
@@ -25,11 +26,12 @@ export class GameStore extends ComponentStore<GameState> {
       moves: [],
       playerColor: 'white',
       fen: '',
-      pgn: ''
+      pgn: '',
+      checkmate: null
     })
   }
 
-  // Accessors
+  //#region Accessors
   readonly playerMoves$: Observable<{ white: string[], black: string[] }> = this.select(state => {
     const white: string[] = [];
     const black: string[] = [];
@@ -45,8 +47,9 @@ export class GameStore extends ComponentStore<GameState> {
 
   readonly moves$: Observable<string[]> = this.select(state => state.moves);
   readonly hasGameStarted$: Observable<boolean> = this.select(state => state.hasGameStarted);
+  //#endregion
 
-  // Mutators
+  //#region Mutators
   readonly getMoves = (): string[] => this.get(state => state.moves);
   readonly getIsUsersTurn = (): boolean => this.get(state => state.isUsersTurn);
   readonly getPlayerColor = (): string => this.get(state => state.playerColor);
@@ -59,7 +62,7 @@ export class GameStore extends ComponentStore<GameState> {
     pgn: data.pgn
   }));
 
-  readonly startNewGame = this.updater((state, config: NewGameConfig) => ({
+  readonly startNewGame = this.updater((state, config: GameConfig) => ({
     ...state,
     hasGameStarted: !state.hasGameStarted,
     playerColor: config.playerColor,
@@ -72,6 +75,12 @@ export class GameStore extends ComponentStore<GameState> {
     moves: [],
     playerColor: 'white',
     fen: '',
-    pgn: ''
+    pgn: '',
+    checkmate: null
   }));
+
+  readonly handleCheckmate = this.updater((state) => ({
+    ...state
+  }));
+  //#endregion
 }

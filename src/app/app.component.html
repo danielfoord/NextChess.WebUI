@@ -72,7 +72,7 @@
 <ng-template #gameInProgressMenuTmpl>
   <div>
     <h2>Moves</h2>
-    <div *ngIf="pgn$ | async as pgn">
+    <div *ngrxLet="pgn$ as pgn">
       <ng-container *ngIf="pgn.length === 0">
         <div style="padding-bottom:10px">Empty</div>
       </ng-container>
