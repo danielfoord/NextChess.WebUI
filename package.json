@@ -25,7 +25,7 @@
     "@ng-web-apis/common": "^2.0.0",
     "@ng-web-apis/storage": "^1.0.0",
     "@ngrx/component": "^14.1.0",
-    "@ngrx/component-store": "^14.1.0",
+    "@ngrx/component-store": "^14.3.1",
     "rxjs": "~7.5.6",
     "stockfish.js": "^10.0.2",
     "tslib": "^2.3.0",
